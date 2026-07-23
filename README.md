@@ -101,11 +101,26 @@ requirements.txt
 README.md
 ```
 
+## 웹 뷰어 (GitHub Pages)
+
+카드에 굽는 URL이 가리키는 개인화 도장판 페이지.
+
+- 소스: `docs/` (GitHub Pages를 `main` 브랜치 `/docs`로 설정)
+- 배포 주소: `https://elderlord.github.io/nfc-stamp/`
+- 로컬 확인: `cd docs && python3 -m http.server 8000` 후
+  `http://localhost:8000/?n=철수&id=2026-0001&s=1` 열기
+- 로직 테스트: `node --test`
+
+### GitHub Pages 켜기 (최초 1회, 병합 후)
+
+저장소 Settings → Pages → Source를 **Deploy from a branch**,
+Branch를 **`main` / `/docs`**로 지정. 저장하면 위 주소로 배포된다.
+
 ## 로드맵
 
 - [x] PN532 I2C 통신 확립 ← **현재 브랜치**
 - [ ] 발급 스테이션 (닉네임 입력 → 카드에 URL NDEF 쓰기)
-- [ ] GitHub Pages (URL 파라미터 → 개인화 화면)
+- [x] GitHub Pages 뷰어 (URL 파라미터 → 개인화 화면)
 - [ ] 도장 찍기 (전시관 리더: URL 읽어 `s`에 번호 추가 후 다시 쓰기)
 - [ ] 카드 초기화 (확인 팝업 포함)
 
