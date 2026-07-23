@@ -19,6 +19,11 @@ test("parseParams: 중복·미지·비숫자 정리", () => {
   assert.deepEqual([...r.visited].sort((a, b) => a - b), [1, 2, 99]);
 });
 
+test("parseParams: 소수·음수·혼합 토큰 배제 (순수 정수만)", () => {
+  const r = parseParams("?s=1.5,-3,2abc,2");
+  assert.deepEqual([...r.visited].sort((a, b) => a - b), [2]);
+});
+
 test("parseParams: 닉네임 URL 인코딩 디코드", () => {
   const r = parseParams("?n=%EC%B2%A0%EC%88%98"); // 철수
   assert.equal(r.n, "철수");

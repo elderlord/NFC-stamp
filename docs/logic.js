@@ -10,8 +10,9 @@ export function parseParams(search) {
   const rawS = p.get("s") || "";
   const visited = new Set();
   for (const part of rawS.split(",")) {
-    const num = Number.parseInt(part.trim(), 10);
-    if (Number.isInteger(num)) visited.add(num);
+    const token = part.trim();
+    // 신뢰할 수 없는 URL 입력: 순수 정수 토큰만 허용 (1.5, -3, 2abc 등 배제)
+    if (/^\d+$/.test(token)) visited.add(Number(token));
   }
   return { n, id, visited };
 }
