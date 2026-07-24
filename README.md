@@ -101,6 +101,22 @@ requirements.txt
 README.md
 ```
 
+## 발급 스테이션
+
+관람객에게 카드를 발급한다. 터미널(SSH)에서 닉네임·성별·연령대를 입력하고 카드를
+리더에 올려놓으면, 카드 UID를 식별번호로 하는 개인화 URL을 NDEF로 굽는다.
+
+- 실행: `source ~/pn532/bin/activate && python scripts/pn532_issue.py`
+- 로직 테스트: `python -m unittest discover -s test`
+- 카드에 굽는 URL: `https://elderlord.github.io/NFC-stamp/?n=<닉네임>&id=<UID>&s=`
+- 발급 로그: `data/issue_log.csv` (개인정보 — gitignore, 커밋 안 함)
+
+**로그 코드 범례**
+
+- 성별: `m` = 남, `f` = 여
+- 연령대: `1`=초등 저학년(1~3) · `2`=초등 고학년(4~6) · `3`=10대(중학생↑) ·
+  `4`=20대 · `5`=30대 · `6`=40대 · `7`=50대 이상
+
 ## 웹 뷰어 (GitHub Pages)
 
 카드에 굽는 URL이 가리키는 개인화 도장판 페이지.
@@ -119,7 +135,7 @@ Branch를 **`main` / `/docs`**로 지정. 저장하면 위 주소로 배포된�
 ## 로드맵
 
 - [x] PN532 I2C 통신 확립 ← **현재 브랜치**
-- [ ] 발급 스테이션 (닉네임 입력 → 카드에 URL NDEF 쓰기)
+- [x] 발급 스테이션 (닉네임 입력 → 카드에 URL NDEF 쓰기)
 - [x] GitHub Pages 뷰어 (URL 파라미터 → 개인화 화면)
 - [ ] 도장 찍기 (전시관 리더: URL 읽어 `s`에 번호 추가 후 다시 쓰기)
 - [ ] 카드 초기화 (확인 팝업 포함)
