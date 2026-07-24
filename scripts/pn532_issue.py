@@ -25,7 +25,7 @@ import issue_logic as il
 
 LOG_PATH = "data/issue_log.csv"
 USER_MEM_START = 4          # NTAG215 사용자 메모리 시작 페이지
-READ_PAGES = 40             # 검증·기존감지용으로 읽을 페이지 수(160B, URL 충분)
+READ_PAGES = 70            # 검증/기존감지용. 최대 단일 NDEF 레코드(~258B, 65페이지)를 여유 있게 커버
 CARD_TIMEOUT = 30           # 카드 대기 초
 
 
@@ -140,7 +140,7 @@ def issue_one(pn532):
     url = il.build_url(il.BASE, nickname, uid)
     try:
         write_ndef(pn532, url)
-    except RuntimeError as exc:
+    except (RuntimeError, il.IssueError) as exc:
         print(f"쓰기 실패: {exc} — 로그를 남기지 않습니다.\n")
         return
 
@@ -161,11 +161,14 @@ def main():
         print(f"PN532를 열지 못했습니다: {exc}")
         raise SystemExit(1)
     print("발급 스테이션 시작 (종료: Ctrl+C)\n")
-    try:
-        while True:
+    while True:
+        try:
             issue_one(pn532)
-    except KeyboardInterrupt:
-        print("\n종료합니다.")
+        except KeyboardInterrupt:
+            print("\n종료합니다.")
+            break
+        except Exception as exc:
+            print(f"오류로 이번 발급을 건너뜁니다: {exc}\n")
 
 
 if __name__ == "__main__":
