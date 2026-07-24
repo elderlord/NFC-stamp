@@ -32,6 +32,11 @@ class TestNdefCodec(unittest.TestCase):
     def test_decode_non_ndef_returns_none(self):
         self.assertIsNone(card.decode_ndef_uri(bytes([0x00, 0x00, 0x00, 0x00])))
 
+    def test_decode_corrupted_utf8_returns_none(self):
+        # 반쯤 써진 카드: URI 레코드지만 payload에 유효하지 않은 UTF-8(0xFE)
+        data = bytes([0x03, 0x06, 0xD1, 0x01, 0x02, 0x55, 0x04, 0xFE, 0xFE])
+        self.assertIsNone(card.decode_ndef_uri(data))
+
     def test_has_ndef(self):
         self.assertTrue(card.has_ndef(card.encode_ndef_uri("https://ex.com/a")))
         self.assertFalse(card.has_ndef(bytes([0x00, 0x00])))

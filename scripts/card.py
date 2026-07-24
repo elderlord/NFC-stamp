@@ -58,7 +58,11 @@ def decode_ndef_uri(data):
     if not payload:
         return None
     prefix = _URI_PREFIXES.get(payload[0], "")
-    return prefix + payload[1:].decode("utf-8")
+    try:
+        return prefix + payload[1:].decode("utf-8")
+    except UnicodeDecodeError:
+        # 손상된/반쯤 써진 카드: 유효한 UTF-8이 아니면 해독 불가로 처리
+        return None
 
 
 def has_ndef(data):

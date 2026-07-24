@@ -103,14 +103,22 @@ def ensure_capability_container(pn532):
             raise RuntimeError("Capability Container(page 3) 쓰기 실패")
 
 
+WRITE_RETRIES = 4       # 연속 페이지 쓰기의 일시적 실패 대비 재시도 횟수
+
+
 def write_ndef(pn532, url):
     """URL을 NDEF로 인코딩해 사용자 메모리에 페이지 단위로 쓴다."""
     ensure_capability_container(pn532)
     pages = il.pad_pages(il.encode_ndef_uri(url))
     for i in range(0, len(pages), 4):
         block = USER_MEM_START + i // 4
-        if not pn532.ntag2xx_write_block(block, pages[i:i + 4]):
-            raise RuntimeError(f"페이지 {block} 쓰기 실패")
+        chunk = pages[i:i + 4]
+        for _ in range(WRITE_RETRIES):
+            if pn532.ntag2xx_write_block(block, chunk):
+                break
+            time.sleep(0.02)   # 카드/리더가 안정될 짧은 간격 후 재시도
+        else:
+            raise RuntimeError(f"페이지 {block} 쓰기 실패 ({WRITE_RETRIES}회 재시도)")
 
 
 # --- 로그 ---------------------------------------------------------------

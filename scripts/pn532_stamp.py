@@ -115,12 +115,20 @@ def read_user_memory(pn532, num_pages=READ_PAGES):
     return bytes(data)
 
 
+WRITE_RETRIES = 4       # 연속 페이지 쓰기의 일시적 실패 대비 재시도 횟수
+
+
 def write_ndef(pn532, url):
     pages = card.pad_pages(card.encode_ndef_uri(url))
     for i in range(0, len(pages), 4):
         block = USER_MEM_START + i // 4
-        if not pn532.ntag2xx_write_block(block, pages[i:i + 4]):
-            raise RuntimeError(f"페이지 {block} 쓰기 실패")
+        chunk = pages[i:i + 4]
+        for _ in range(WRITE_RETRIES):
+            if pn532.ntag2xx_write_block(block, chunk):
+                break
+            time.sleep(0.02)   # 카드/리더가 안정될 짧은 간격 후 재시도
+        else:
+            raise RuntimeError(f"페이지 {block} 쓰기 실패 ({WRITE_RETRIES}회 재시도)")
 
 
 # --- 한 번의 태그 ---
