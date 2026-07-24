@@ -61,5 +61,40 @@ class TestLogFields(unittest.TestCase):
             il.log_fields("t", "u", "n", "m", 9)
 
 
+class TestNdefCodec(unittest.TestCase):
+    def test_encode_known_bytes(self):
+        # prefix 0x04 = "https://"
+        tlv = il.encode_ndef_uri("https://ex.com/a")
+        rest = b"ex.com/a"
+        payload = bytes([0x04]) + rest
+        record = bytes([0xD1, 0x01, len(payload), 0x55]) + payload
+        expected = bytes([0x03, len(record)]) + record + bytes([0xFE])
+        self.assertEqual(tlv, expected)
+
+    def test_roundtrip_full_url(self):
+        url = il.build_url(il.BASE, "철수", "04A1B2C3D4E580")
+        tlv = il.encode_ndef_uri(url)
+        self.assertEqual(il.decode_ndef_uri(tlv), url)
+
+    def test_no_prefix_abbreviation(self):
+        # https:// 접두사가 없으면 prefix 0x00, 전체 문자열 보존
+        tlv = il.encode_ndef_uri("ftp://x")
+        self.assertEqual(tlv[6], 0x00)  # record 시작 후 payload 첫 바이트(prefix code)
+        self.assertEqual(il.decode_ndef_uri(tlv), "ftp://x")
+
+    def test_decode_non_ndef_returns_none(self):
+        self.assertIsNone(il.decode_ndef_uri(bytes([0x00, 0x00, 0x00, 0x00])))
+
+    def test_has_ndef(self):
+        tlv = il.encode_ndef_uri("https://ex.com/a")
+        self.assertTrue(il.has_ndef(tlv))
+        self.assertFalse(il.has_ndef(bytes([0x00, 0x00])))
+
+    def test_pad_pages(self):
+        self.assertEqual(len(il.pad_pages(b"12345")) % 4, 0)   # 5 -> 8
+        self.assertEqual(il.pad_pages(b"1234"), b"1234")        # 이미 배수
+        self.assertEqual(il.pad_pages(b"123"), b"123\x00")
+
+
 if __name__ == "__main__":
     unittest.main()

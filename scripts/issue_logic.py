@@ -57,3 +57,65 @@ def log_fields(issued_at, uid, nickname, gender, age_group):
     if not is_valid_age_group(age_group):
         raise IssueError(f"잘못된 연령대 코드: {age_group}")
     return [issued_at, uid, nickname, gender, str(age_group)]
+
+
+# --- NDEF URI 코덱 ---------------------------------------------------------
+
+# NDEF URI 접두사 코드 (필요한 것만)
+_URI_PREFIXES = {
+    0x00: "",
+    0x01: "http://www.",
+    0x02: "https://www.",
+    0x03: "http://",
+    0x04: "https://",
+}
+# 인코딩 시 긴 접두사부터 매칭
+_PREFIX_MATCH = [
+    (0x02, "https://www."),
+    (0x01, "http://www."),
+    (0x04, "https://"),
+    (0x03, "http://"),
+]
+
+
+def encode_ndef_uri(url):
+    """URI 문자열 → NTAG에 쓸 NDEF 메시지 TLV 바이트 (03 <len> <record> FE)."""
+    prefix_code = 0x00
+    rest = url
+    for code, p in _PREFIX_MATCH:
+        if url.startswith(p):
+            prefix_code = code
+            rest = url[len(p):]
+            break
+    payload = bytes([prefix_code]) + rest.encode("utf-8")
+    if len(payload) > 255:
+        raise IssueError("URI가 너무 깁니다(단일 NDEF 레코드 한도 초과)")
+    record = bytes([0xD1, 0x01, len(payload), 0x55]) + payload  # SR URI 레코드
+    tlv = bytes([0x03, len(record)]) + record + bytes([0xFE])
+    return tlv
+
+
+def decode_ndef_uri(data):
+    """NTAG 사용자 메모리 바이트 → URI 문자열. NDEF URI 레코드가 아니면 None."""
+    if len(data) < 2 or data[0] != 0x03:
+        return None
+    msg_len = data[1]
+    record = data[2:2 + msg_len]
+    if len(record) < 4 or record[3] != 0x55:  # 'U' 타입
+        return None
+    payload_len = record[2]
+    payload = record[4:4 + payload_len]
+    if not payload:
+        return None
+    prefix = _URI_PREFIXES.get(payload[0], "")
+    return prefix + payload[1:].decode("utf-8")
+
+
+def has_ndef(data):
+    """사용자 메모리 첫 바이트로 기존 NDEF 존재 판정."""
+    return len(data) >= 2 and data[0] == 0x03 and data[1] > 0
+
+
+def pad_pages(tlv):
+    """4바이트 페이지 배수로 0x00 패딩."""
+    return tlv + bytes((-len(tlv)) % 4)
