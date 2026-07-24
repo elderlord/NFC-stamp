@@ -34,7 +34,7 @@ def load_exhibit_id():
     try:
         with open(EXHIBIT_ID_PATH, encoding="utf-8") as f:
             raw = f.read().strip()
-    except FileNotFoundError:
+    except OSError:
         raise SystemExit(
             f"전시관 번호 설정이 없습니다. 먼저: mkdir -p data && echo 1 > {EXHIBIT_ID_PATH}"
         )
@@ -127,33 +127,31 @@ def write_ndef(pn532, url):
 
 def stamp_one(pn532, exhibit_id, feedback):
     wait_for_card(pn532)
-    url = card.decode_ndef_uri(read_user_memory(pn532))
-
-    if not stamp_logic.is_our_url(url):
-        feedback.foreign()
-        wait_for_removal(pn532)
-        return
-
-    new_url, changed = stamp_logic.add_stamp(url, exhibit_id)
-    if not changed:
-        feedback.already(exhibit_id)
-        wait_for_removal(pn532)
-        return
-
     try:
-        write_ndef(pn532, new_url)
-    except (RuntimeError, card.CardError) as exc:
-        print(f"\n쓰기 실패: {exc} — 카드를 다시 대주세요.")
-        wait_for_removal(pn532)
-        return
+        url = card.decode_ndef_uri(read_user_memory(pn532))
 
-    if card.decode_ndef_uri(read_user_memory(pn532)) != new_url:
-        print("\n검증 실패(읽은 값이 다름) — 카드를 다시 대주세요.")
-        wait_for_removal(pn532)
-        return
+        if not stamp_logic.is_our_url(url):
+            feedback.foreign()
+            return
 
-    play_progress(feedback, exhibit_id)
-    wait_for_removal(pn532)
+        new_url, changed = stamp_logic.add_stamp(url, exhibit_id)
+        if not changed:
+            feedback.already(exhibit_id)
+            return
+
+        try:
+            write_ndef(pn532, new_url)
+        except (RuntimeError, card.CardError) as exc:
+            print(f"\n쓰기 실패: {exc} — 카드를 다시 대주세요.")
+            return
+
+        if card.decode_ndef_uri(read_user_memory(pn532)) != new_url:
+            print("\n검증 실패(읽은 값이 다름) — 카드를 다시 대주세요.")
+            return
+
+        play_progress(feedback, exhibit_id)
+    finally:
+        wait_for_removal(pn532)
 
 
 def main():
