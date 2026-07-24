@@ -106,7 +106,7 @@ README.md
 카드에 굽는 URL이 가리키는 개인화 도장판 페이지.
 
 - 소스: `docs/` (GitHub Pages를 `main` 브랜치 `/docs`로 설정)
-- 배포 주소: `https://elderlord.github.io/nfc-stamp/`
+- 배포 주소: `https://elderlord.github.io/NFC-stamp/`
 - 로컬 확인: `cd docs && python3 -m http.server 8000` 후
   `http://localhost:8000/?n=철수&id=2026-0001&s=1` 열기
 - 로직 테스트: `node --test`

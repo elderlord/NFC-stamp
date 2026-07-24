@@ -31,7 +31,7 @@
 ## 아키텍처
 
 - **호스팅**: GitHub Pages, 소스 = `main` 브랜치의 `/docs` 폴더.
-  사이트 주소 = `https://elderlord.github.io/nfc-stamp/`.
+  사이트 주소 = `https://elderlord.github.io/NFC-stamp/`.
   이 주소가 카드에 굽는 URL의 BASE로 확정된다.
 - **빌드 없음**: 번들러·프레임워크·의존성 없음. GitHub Pages에 그대로 배포.
 - **파일 구성** (역할 분리):
@@ -48,7 +48,7 @@ app.js는 `logic.js`를 ES 모듈 import 한다. GitHub Pages는 ES 모듈을 �
 ## 데이터 계약 (뷰어가 읽는 URL)
 
 ```
-https://elderlord.github.io/nfc-stamp/?n=철수&id=2026-0001&s=1,2
+https://elderlord.github.io/NFC-stamp/?n=철수&id=2026-0001&s=1,2
 ```
 
 | 파라미터 | 의미 | 규칙 |

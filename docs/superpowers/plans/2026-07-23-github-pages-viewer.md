@@ -14,7 +14,7 @@
 - JS는 ES 모듈(`<script type="module">`, `import`/`export`).
 - 사용자 입력(닉네임 등)은 `textContent`로만 DOM에 삽입. `innerHTML` 사용 금지 (XSS 차단).
 - 모바일 우선(세로) 레이아웃. 아이폰 Safari에서 열림.
-- 사이트 BASE 주소: `https://elderlord.github.io/nfc-stamp/`
+- 사이트 BASE 주소: `https://elderlord.github.io/NFC-stamp/`
 - 전시관 마스터는 `docs/logic.js`의 `EXHIBITS` 객체 한 곳에서만 정의. 테스트용 2곳(`1:우주관`, `2:로봇관`).
 - 테스트 실행 환경: Node 18+ (`node --test`).
 - 커밋 자주. 각 태스크 끝에서 커밋.
@@ -346,7 +346,7 @@ git commit -m "Add stamp-board viewer page (index.html, render logic)"
 카드에 굽는 URL이 가리키는 개인화 도장판 페이지.
 
 - 소스: `docs/` (GitHub Pages를 `main` 브랜치 `/docs`로 설정)
-- 배포 주소: `https://elderlord.github.io/nfc-stamp/`
+- 배포 주소: `https://elderlord.github.io/NFC-stamp/`
 - 로컬 확인: `cd docs && python3 -m http.server 8000` 후
   `http://localhost:8000/?n=철수&id=2026-0001&s=1` 열기
 - 로직 테스트: `node --test`
