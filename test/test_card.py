@@ -51,6 +51,10 @@ class TestNdefCodec(unittest.TestCase):
             card.encode_ndef_uri("x" * 252)   # payload 253 > 250 → raise
         card.encode_ndef_uri("x" * 249)        # payload 250, record 254 → OK
 
+    def test_empty_ndef_reads_as_empty(self):
+        self.assertIsNone(card.decode_ndef_uri(card.EMPTY_NDEF))
+        self.assertFalse(card.has_ndef(card.EMPTY_NDEF))
+
 
 if __name__ == "__main__":
     unittest.main()

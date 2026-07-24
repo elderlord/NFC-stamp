@@ -73,3 +73,7 @@ def has_ndef(data):
 def pad_pages(tlv):
     """4바이트 페이지 배수로 0x00 패딩."""
     return tlv + bytes((-len(tlv)) % 4)
+
+
+# 빈 NDEF 메시지(내용 없음). 소거 후 이 상태로 남긴다.
+EMPTY_NDEF = bytes([0x03, 0x00, 0xFE, 0x00])
