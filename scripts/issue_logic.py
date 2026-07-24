@@ -88,7 +88,7 @@ def encode_ndef_uri(url):
             rest = url[len(p):]
             break
     payload = bytes([prefix_code]) + rest.encode("utf-8")
-    if len(payload) > 251:
+    if len(payload) > 250:
         raise IssueError("URI가 너무 깁니다(단일 NDEF 레코드 한도 초과)")
     record = bytes([0xD1, 0x01, len(payload), 0x55]) + payload  # SR URI 레코드
     tlv = bytes([0x03, len(record)]) + record + bytes([0xFE])

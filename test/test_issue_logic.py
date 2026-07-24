@@ -96,12 +96,12 @@ class TestNdefCodec(unittest.TestCase):
         self.assertEqual(il.pad_pages(b"123"), b"123\x00")
 
     def test_oversized_uri_raises_issueerror(self):
-        # payload = prefix(1) + rest; rest of 252 bytes → payload 253 > 251
-        long_url = "x" * 252  # no known prefix → prefix 0x00, payload = 1 + 252 = 253 > 251
+        # payload = prefix(1) + rest; rest of 252 bytes → payload 253 > 250
+        long_url = "x" * 252  # no known prefix → prefix 0x00, payload = 1 + 252 = 253 > 250
         with self.assertRaises(il.IssueError):
             il.encode_ndef_uri(long_url)
         # a URL right at the limit must still encode without error
-        ok_url = "x" * 250  # payload = 1 + 250 = 251, record = 255 (fits)
+        ok_url = "x" * 249  # payload = 1 + 249 = 250, record = 254 (fits)
         il.encode_ndef_uri(ok_url)  # should not raise
 
 

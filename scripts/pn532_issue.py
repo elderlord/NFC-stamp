@@ -27,6 +27,7 @@ LOG_PATH = "data/issue_log.csv"
 USER_MEM_START = 4          # NTAG215 사용자 메모리 시작 페이지
 READ_PAGES = 70            # 검증/기존감지용. 최대 단일 NDEF 레코드(~258B, 65페이지)를 여유 있게 커버
 CARD_TIMEOUT = 30           # 카드 대기 초
+NTAG215_CC = bytes([0xE1, 0x10, 0x3F, 0x00])  # NTAG215 Capability Container (page 3, NDEF 포맷)
 
 
 def open_pn532():
@@ -94,8 +95,17 @@ def read_user_memory(pn532, num_pages=READ_PAGES):
     return bytes(data)
 
 
+def ensure_capability_container(pn532):
+    """페이지 3의 CC가 비어 있으면 NTAG215 NDEF 포맷을 기록한다(공장 초기 카드 대비, 멱등)."""
+    page3 = pn532.ntag2xx_read_block(3)
+    if page3 is None or page3[0] != 0xE1:
+        if not pn532.ntag2xx_write_block(3, NTAG215_CC):
+            raise RuntimeError("Capability Container(page 3) 쓰기 실패")
+
+
 def write_ndef(pn532, url):
     """URL을 NDEF로 인코딩해 사용자 메모리에 페이지 단위로 쓴다."""
+    ensure_capability_container(pn532)
     pages = il.pad_pages(il.encode_ndef_uri(url))
     for i in range(0, len(pages), 4):
         block = USER_MEM_START + i // 4
