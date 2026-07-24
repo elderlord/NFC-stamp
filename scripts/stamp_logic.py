@@ -35,7 +35,7 @@ def add_stamp(url, exhibit_id):
     seen = []
     for tok in s_raw.split(","):
         tok = tok.strip()
-        if tok.isdigit() and int(tok) not in seen:
+        if tok.isdecimal() and int(tok) not in seen:
             seen.append(int(tok))
 
     if exhibit_id in seen:

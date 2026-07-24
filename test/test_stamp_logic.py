@@ -57,6 +57,14 @@ class TestAddStamp(unittest.TestCase):
         q = parse_qs(urlparse(new_url).query, keep_blank_values=True)
         self.assertEqual(q["s"], ["1,99,2"])
 
+    def test_non_decimal_token_ignored(self):
+        # "²" is isdigit() True but isdecimal() False and int() would raise
+        url = card.BASE + "?n=x&id=AB&s=1,²"
+        new_url, changed = sl.add_stamp(url, 2)
+        self.assertTrue(changed)
+        q = parse_qs(urlparse(new_url).query, keep_blank_values=True)
+        self.assertEqual(q["s"], ["1,2"])   # ² dropped, 2 appended
+
 
 if __name__ == "__main__":
     unittest.main()
